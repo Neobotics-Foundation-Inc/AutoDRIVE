@@ -2,6 +2,10 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
@@ -34,5 +38,16 @@ def generate_launch_description():
             executable='sim_twin_bridge',
             name='sim_twin_bridge',
             output='screen',
+        ),
+        # Teleop parity with driver v0.4.2: the car's teleop stack runs the
+        # YOLO detection node by default (/camera/color -> /edgetpu/inference).
+        # The committed TensorRT engine is Jetson-built; on other GPUs the
+        # node's own fallback loads the .pt weights.
+        DeclareLaunchArgument('inference', default_value='true'),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(os.path.join(
+                get_package_share_directory('neoracer_ros2_driver'),
+                'launch', 'inference.launch.py')),
+            condition=IfCondition(LaunchConfiguration('inference')),
         ),
     ])

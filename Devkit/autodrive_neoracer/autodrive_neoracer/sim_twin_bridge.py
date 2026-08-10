@@ -35,12 +35,15 @@
 # unmodified alongside it (see sim_twin.launch.py), so the twin exercises the
 # same /drive -> mux -> /mux_out -> throttle -> /motor chain as the car:
 #
-#   Subscribe /motor   ackermann_msgs/AckermannDriveStamped (normalized [-1, 1])
-#   Publish   /scan    sensor_msgs/LaserScan   (frame 'laser', RELIABLE like lakibeam1)
-#   Publish   /camera  sensor_msgs/Image       (frame 'camera_link', encoding 'jpeg')
-#   Publish   /imu     sensor_msgs/Imu         (frame 'imu_link', RELIABLE depth 10)
-#   Publish   /odom    nav_msgs/Odometry       (odom -> base_footprint, RELIABLE depth 10)
-#   Publish   /battery sensor_msgs/BatteryState (static pack voltage; sim has no battery model)
+#   Subscribe /motor           ackermann_msgs/AckermannDriveStamped (normalized [-1, 1])
+#   Publish   /scan            sensor_msgs/LaserScan   (frame 'laser', RELIABLE like lakibeam1)
+#   Publish   /camera/color    sensor_msgs/Image       (frame 'camera_link', encoding 'jpeg')
+#   Publish   /imu/fused       sensor_msgs/Imu         (frame 'imu_link', RELIABLE depth 10)
+#   Publish   /odom            nav_msgs/Odometry       (odom -> base_footprint, RELIABLE depth 10)
+#   Publish   /battery         sensor_msgs/BatteryState (static pack voltage; sim has no battery model)
+#   Publish   /battery/voltage std_msgs/Float32         (racecar_neo scalar contract)
+#   Publish   /encoder/speed   std_msgs/Float32         (motor-encoder ground speed, m/s)
+#   Publish   /rc/channels     std_msgs/Float32MultiArray (10 channels, transmitter-off neutral)
 #
 # Faithful-twin notes:
 # - /motor speed mirrors controller.py motor_to_command(): +/-6 m/s. The real
@@ -64,6 +67,7 @@ from rclpy.qos import qos_profile_sensor_data # QoS profile matching the hardwar
 from ackermann_msgs.msg import AckermannDriveStamped # Drive command message class
 from sensor_msgs.msg import BatteryState, Imu, Image, Joy, LaserScan # Sensor message classes
 from nav_msgs.msg import Odometry # Odometry message class
+from std_msgs.msg import Float32, Float32MultiArray # Scalar racecar_neo sensor topics
 
 # Python module imports
 import socketio # Socket.IO realtime client and server
@@ -211,10 +215,16 @@ class SimTwinBridge(Node):
         # /imu and /odom RELIABLE depth 10 for the EKF, /camera and /battery
         # sensor-data; /motor is the throttle node's BEST_EFFORT output)
         self.pub_scan = self.create_publisher(LaserScan, '/scan', 1000)
-        self.pub_imu = self.create_publisher(Imu, '/imu', 10)
+        self.pub_imu = self.create_publisher(Imu, '/imu/fused', 10)
         self.pub_odom = self.create_publisher(Odometry, '/odom', 10)
-        self.pub_camera = self.create_publisher(Image, '/camera', qos_profile_sensor_data)
+        self.pub_camera = self.create_publisher(Image, '/camera/color', qos_profile_sensor_data)
         self.pub_battery = self.create_publisher(BatteryState, '/battery', qos_profile_sensor_data)
+        # Scalar racecar_neo sensor topics (driver v0.4.2, contract-sync with
+        # MITRacecarNeo). /battery/current is deliberately ABSENT: the OSRbot
+        # base has no current shunt, nothing publishes it on the car either.
+        self.pub_voltage = self.create_publisher(Float32, '/battery/voltage', qos_profile_sensor_data)
+        self.pub_encoder = self.create_publisher(Float32, '/encoder/speed', qos_profile_sensor_data)
+        self.pub_rc = self.create_publisher(Float32MultiArray, '/rc/channels', qos_profile_sensor_data)
         self.create_subscription(AckermannDriveStamped, '/motor', self.on_motor, qos_profile_sensor_data)
         self.create_timer(1.0, self.publish_battery)
 
@@ -264,6 +274,7 @@ class SimTwinBridge(Node):
                 -1.0, min(1.0, msg.drive.steering_angle / STEERING_WIRE_FULL_LOCK))
 
     def publish_battery(self):
+        self.pub_voltage.publish(Float32(data=float(self.battery_voltage)))
         msg = BatteryState()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.voltage = self.battery_voltage
@@ -306,6 +317,11 @@ class SimTwinBridge(Node):
         imu = create_imu_msg(stamp, orientation_quaternion, angular_velocity, linear_acceleration)
         self.pub_imu.publish(imu)
         self.pub_odom.publish(create_odom_msg(stamp, position, imu.orientation, linear_velocity))
+        # Motor-encoder ground speed; and the FlySky channels in their
+        # transmitter-off state (failsafe maps to neutral), like a car with no
+        # transmitter bound.
+        self.pub_encoder.publish(Float32(data=self.actual_speed))
+        self.pub_rc.publish(Float32MultiArray(data=[0.0] * 10))
         if now - self.last_camera_t >= 1.0 / CAMERA_FPS:
             self.last_camera_t = now
             self.pub_camera.publish(create_image_msg(
@@ -359,7 +375,8 @@ def main():
         })
 
     node.get_logger().info('NeoRacer sim twin listening on :4567 '
-                           '(driver-parity topics: /motor /scan /camera /imu /odom /battery)')
+                           '(driver v0.4.2 parity: /motor /scan /camera/color /imu/fused '
+                           '/odom /battery /battery/voltage /encoder/speed /rc/channels)')
     app = socketio.WSGIApp(sio)
     pywsgi.WSGIServer(('', 4567), app, handler_class=WebSocketHandler).serve_forever()
 

@@ -72,7 +72,7 @@ def generate_launch_description():
         name='complementary_filter_gain_node',
         output='screen',
         remappings=[
-            ('imu/data_raw', 'imu'),
+            ('imu/data_raw', '/imu/fused'),
             ('imu/data', 'imu_filter'),
         ],
         parameters=[{

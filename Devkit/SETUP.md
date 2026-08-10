@@ -153,13 +153,22 @@ at 0.625 of it, so `/motor` 0.625 = 30° wheels = simulator full lock.
 | Topic | Type | Notes |
 |---|---|---|
 | `/scan` | LaserScan | 1440-bin full circle (LakiBeam wire format), 270° live window, rear wedge inf, frame `laser`, 30 Hz, RELIABLE |
-| `/camera` | Image | JPEG bytes, encoding `jpeg`, frame `camera_link`, 60 fps |
-| `/imu` | Imu | frame `imu_link`, RELIABLE depth 10 |
+| `/camera/color` | Image | JPEG bytes, encoding `jpeg`, frame `camera_link`, 60 fps |
+| `/imu/fused` | Imu | frame `imu_link`, RELIABLE depth 10 |
 | `/odom` | Odometry | odom → base_footprint, RELIABLE depth 10 |
 | `/battery` | BatteryState | static pack voltage (sim has no battery model) |
+| `/battery/voltage` | Float32 | racecar_neo scalar contract; `/battery/current` deliberately absent (no shunt on the car) |
+| `/encoder/speed` | Float32 | motor-encoder ground speed, m/s |
+| `/rc/channels` | Float32MultiArray | 10 channels, transmitter-off neutral |
+| `/edgetpu/inference` | Detection2DArray | YOLO detection node (driver's own, default on; ~90 s warmup after boot) |
 | `/drive` | AckermannDriveStamped | normalized lab commands into the mux |
 | `/motor` | AckermannDriveStamped | throttle output, wire units |
 | `/joy` | Joy | virtual gamepad, auto-START |
+
+Topic names follow driver v0.4.2 (racecar_neo contract sync). The five lab
+dashboards (camlabel, wallfollow, pursuit, eps, smartfollow) install
+disabled, exactly as on the car; enable one with
+`sudo systemctl enable --now neoracer-<name>`.
 
 racecar_core conventions carry over: lidar samples in centimeters, index 0
 is the leftmost ray, positive steering angle means right.
