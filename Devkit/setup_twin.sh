@@ -26,7 +26,7 @@ apt-get install -y ros-humble-ros-base ros-humble-ackermann-msgs ros-humble-cv-b
   python3-colcon-common-extensions python3-opencv python3-pip \
   ros-humble-robot-localization ros-humble-imu-complementary-filter \
   ros-humble-slam-toolbox ros-humble-nav2-bringup ros-humble-joint-state-publisher \
-  ros-humble-diagnostic-updater
+  ros-humble-diagnostic-updater ros-humble-vision-msgs
 
 echo ">> [2/4] Python dependencies"
 # socketio/engineio pins: the simulator speaks Socket.IO protocol EIO=3.
@@ -67,7 +67,14 @@ echo "\$NEO_OS/library" > "\$SITE/racecar_student.pth"
 # ROS 2 workspace: the twin bridge plus the REAL driver package, whose mux and
 # throttle nodes run unmodified in the twin (sim_twin.launch.py starts them).
 mkdir -p ros2_ws/src
-ln -sfn "$SCRIPT_DIR/autodrive_neoracer" ros2_ws/src/autodrive_neoracer
+# This script ships in two layouts: the simulator repo's Devkit/ (package in
+# an autodrive_neoracer/ subdirectory) and the AutoDRIVE-Devkit toolkit
+# (package.xml beside this script). Link whichever holds the package.
+if [ -f "$SCRIPT_DIR/package.xml" ]; then
+    ln -sfn "$SCRIPT_DIR" ros2_ws/src/autodrive_neoracer
+else
+    ln -sfn "$SCRIPT_DIR/autodrive_neoracer" ros2_ws/src/autodrive_neoracer
+fi
 [ -d "$HOME_DIR/neoracer_ros2_driver" ] || \
   git clone --depth 1 https://github.com/Neobotics-Foundation-Inc/neoracer_ros2_driver.git "$HOME_DIR/neoracer_ros2_driver"
 # Repo root, not the inner package dir: the car keeps the whole repo at
@@ -77,17 +84,14 @@ ln -sfn "$HOME_DIR/neoracer_ros2_driver" ros2_ws/src/neoracer_ros2_driver
 source /opt/ros/humble/setup.bash
 cd ros2_ws && colcon build --symlink-install --packages-select autodrive_neoracer neoracer_ros2_driver
 cd "$HOME_DIR"
-# osracer vendor stack (factory-image layout = the dev branch; main is older and
-# incomplete). Underlay for the driver's autonomy.launch.py: TF from
-# osracer_description, EKF params from osracer_bringup, slam/nav launch wrappers.
+# osracer vendor stack. Pinned to a commit on the vendor's product/neo line:
+# osrbot has deleted branches under us before (dev, 2026-08), and the twin
+# must build the tree it was validated against. Bump deliberately.
+OSRACER_PIN=378947f471c70f2c78f150109837fa0787820115
 mkdir -p osracer_ws/src
 [ -d osracer_ws/src/osracer ] || \
-  git clone --depth 1 --branch dev https://github.com/osrbot/osracer.git osracer_ws/src/osracer
-# Upstream bug in osracer dev: slam_toolbox.launch.py defaults to config/ but
-# the package ships (and installs) param/. Point it at the real file so SLAM
-# runs the tuned parameters instead of slam_toolbox defaults.
-sed -i "s/'config', 'mapper_params_online_async.yaml'/'param', 'mapper_params_online_async.yaml'/" \
-  osracer_ws/src/osracer/osracer_slam/launch/slam_toolbox.launch.py
+  git clone -q https://github.com/osrbot/osracer.git osracer_ws/src/osracer
+git -C osracer_ws/src/osracer checkout -q "\$OSRACER_PIN"
 cd osracer_ws && colcon build --symlink-install \
   --packages-select osracer_description osracer_bringup osracer_slam osracer_navigation \
                     osracer_debug osracer_calib
@@ -125,8 +129,13 @@ BLOCK
 fi
 USEREOF
 
-echo ">> [4/5] JupyterLab (user-level, for the jupyter service)"
+echo ">> [4/5] JupyterLab + ML stack (user-level)"
 sudo -u "$TARGET_USER" pip3 install --user "${PIP_FLAGS[@]}" --quiet jupyterlab
+# ultralytics for the driver's YOLO node (multi-GB torch pull). Its numpy 2
+# breaks the apt matplotlib in the same interpreter, and pip skips a plain
+# --user matplotlib as already-satisfied, so force the user-site copy.
+sudo -u "$TARGET_USER" pip3 install --user "${PIP_FLAGS[@]}" --quiet ultralytics
+sudo -u "$TARGET_USER" pip3 install --user "${PIP_FLAGS[@]}" --ignore-installed --quiet matplotlib
 
 echo ">> [5/5] systemd services (racecar service parity)"
 bash "$SCRIPT_DIR/setup_twin_services.sh"
