@@ -96,8 +96,24 @@ for entry in "${DASHBOARDS[@]}"; do
             && echo "  $name: at origin tip" \
             || echo "  $name: not fast-forwardable; left as is" >&2
     fi
-    bash "$dir/setup.sh" || echo "  $name: setup.sh failed" >&2
+    bash "$dir/setup.sh" || { echo "  $name: setup.sh failed" >&2; continue; }
+    # The dashboards' setup.sh renders units for the factory user (racecar)
+    # and its home paths. Override user, HOME, and the workspace source in a
+    # drop-in; the base unit can then be re-rendered by setup.sh at any time
+    # without losing the twin adaptation.
+    py=$(ls "$dir"/*.py 2>/dev/null | head -1)
+    mkdir -p "/etc/systemd/system/neoracer-$name.service.d"
+    cat > "/etc/systemd/system/neoracer-$name.service.d/twin.conf" <<DROPIN
+[Service]
+User=$TARGET_USER
+Group=$TARGET_USER
+Environment=HOME=$HOME_DIR
+Environment=FASTRTPS_DEFAULT_PROFILES_FILE=$HOME_DIR/fastdds_udp_only.xml
+ExecStart=
+ExecStart=/bin/bash -c "source /opt/ros/humble/setup.bash && source $HOME_DIR/ros2_ws/install/setup.bash && exec python3 $py"
+DROPIN
 done
+systemctl daemon-reload
 
 echo
 systemctl --no-pager --no-legend list-units 'neoracer-*' || true
