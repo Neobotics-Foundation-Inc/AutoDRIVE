@@ -165,10 +165,16 @@ at 0.625 of it, so `/motor` 0.625 = 30° wheels = simulator full lock.
 | `/motor` | AckermannDriveStamped | throttle output, wire units |
 | `/joy` | Joy | virtual gamepad, auto-START |
 
-Topic names follow driver v0.4.2 (racecar_neo contract sync). The five lab
+Topic names follow the driver's racecar_neo contract. The five lab
 dashboards (camlabel, wallfollow, pursuit, eps, smartfollow) install
-disabled, exactly as on the car; enable one with
-`sudo systemctl enable --now neoracer-<name>`.
+disabled, exactly as the car's installer leaves them; manage them with the
+same commands as on the car:
+
+```
+racecar service status              # core stack + lab dashboards
+racecar service start wallfollow    # start one for a lab session
+racecar service stop wallfollow
+```
 
 racecar_core conventions carry over: lidar samples in centimeters, index 0
 is the leftmost ray, positive steering angle means right.
