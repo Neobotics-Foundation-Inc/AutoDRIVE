@@ -11257,6 +11257,7 @@ GameObject:
   - component: {fileID: 8182356230451287382}
   - component: {fileID: 919235921875620140}
   - component: {fileID: 4697627712638964886}
+  - component: {fileID: 1359406450069817712}
   m_Layer: 0
   m_Name: NeoRacer
   m_TagString: Player
@@ -11418,6 +11419,20 @@ MonoBehaviour:
   CoSimSmoothness: 3
   CoSimPosition: {x: -3, y: 0.01, z: 0.8}
   CoSimRotation: {x: 0, y: 0.70710677, z: 0, w: 0.70710677}
+--- !u!114 &1359406450069817712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8002024953363180988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1be23dbba783f441a636ec0b04cdd50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CoSim: {fileID: 4697627712638964886}
+  Vehicle: {fileID: 8182356230451287382}
 --- !u!1 &8073674532511602661
 GameObject:
   m_ObjectHideFlags: 0

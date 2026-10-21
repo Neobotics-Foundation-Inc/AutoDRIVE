@@ -13,6 +13,9 @@ using UnityEngine;
 // changes. Batchmode:
 //   -executeMethod NeoRacerModelSwap.Report   measurements only, no change
 //   -executeMethod NeoRacerModelSwap.Apply    import, materials, prefab, audit
+//   -executeMethod NeoRacerModelSwap.AddCoSimWheels
+//                                             wheels that roll and steer while
+//                                             co-simulation poses the car
 public static class NeoRacerModelSwap
 {
     const string Dir = "Assets/Models/Vehicle/NeoRacer/Playground";
@@ -88,6 +91,20 @@ public static class NeoRacerModelSwap
         Spec spec = LoadSpec();
         ImportModel(spec);
         SwapPrefab(spec);
+        int missing = Audit();
+        EditorApplication.Exit(missing == 0 ? 0 : 1);
+    }
+
+    public static void AddCoSimWheels()
+    {
+        GameObject root = PrefabUtility.LoadPrefabContents(Prefab);
+        CoSimManager cosim = root.GetComponentInChildren<CoSimManager>(true);
+        CoSimWheels wheels = cosim.gameObject.AddComponent<CoSimWheels>();
+        wheels.CoSim = cosim;
+        wheels.Vehicle = root.GetComponentInChildren<VehicleController>(true);
+        Debug.Log("SWAP CoSimWheels on " + cosim.name + ", vehicle " + wheels.Vehicle.name);
+        PrefabUtility.SaveAsPrefabAsset(root, Prefab);
+        PrefabUtility.UnloadPrefabContents(root);
         int missing = Audit();
         EditorApplication.Exit(missing == 0 ? 0 : 1);
     }
