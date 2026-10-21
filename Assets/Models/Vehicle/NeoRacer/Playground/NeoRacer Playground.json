@@ -1,0 +1,1649 @@
+{
+ "source": "neoracer-model work/sim/neoracer-race.glb (the NeoRacer Playground race build)",
+ "triangles": 244844,
+ "parts": [
+  "Wheel FL",
+  "Wheel FR",
+  "Wheel RL",
+  "Wheel RR",
+  "batt_display",
+  "battery",
+  "bumper",
+  "bumper_mount",
+  "cable",
+  "camera",
+  "camera_cable",
+  "camera_mount",
+  "chassis",
+  "compute",
+  "compute_cable",
+  "cover_left",
+  "cover_right",
+  "deck",
+  "diff_front",
+  "diff_rear",
+  "esc",
+  "led",
+  "led_housing",
+  "lidar",
+  "lidar_cable",
+  "motor",
+  "pcb_cable",
+  "pcb_hub",
+  "router",
+  "router_cable",
+  "servo",
+  "shocks_front",
+  "shocks_rear",
+  "steering",
+  "suspension_front",
+  "suspension_rear",
+  "switch",
+  "tub",
+  "wing"
+ ],
+ "wheels": [
+  {
+   "name": "Wheel FL",
+   "centre": [
+    -0.112,
+    0.28882,
+    0.00349
+   ],
+   "radius": 0.0451,
+   "width": 0.04824
+  },
+  {
+   "name": "Wheel FR",
+   "centre": [
+    0.112,
+    0.28882,
+    0.00349
+   ],
+   "radius": 0.0451,
+   "width": 0.04824
+  },
+  {
+   "name": "Wheel RL",
+   "centre": [
+    -0.112,
+    0.00118,
+    0.00349
+   ],
+   "radius": 0.0451,
+   "width": 0.04824
+  },
+  {
+   "name": "Wheel RR",
+   "centre": [
+    0.112,
+    0.00118,
+    0.00349
+   ],
+   "radius": 0.0451,
+   "width": 0.04824
+  }
+ ],
+ "materials": [
+  {
+   "name": "alu",
+   "baseColor": [
+    0.47932,
+    0.49102,
+    0.50888,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.35,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "alu_2s",
+   "baseColor": [
+    0.47932,
+    0.49102,
+    0.50888,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.35,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "batt_bar_off",
+   "baseColor": [
+    0.02315,
+    0.02519,
+    0.02416,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "batt_bar_on",
+   "baseColor": [
+    0.02315,
+    0.02519,
+    0.02416,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35,
+   "emission": [
+    0.04374,
+    1.0,
+    0.19462
+   ],
+   "emissionStrength": 3.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "batt_board",
+   "baseColor": [
+    0.01298,
+    0.0137,
+    0.01444,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "batt_face",
+   "baseColor": [
+    0.00212,
+    0.00212,
+    0.00243,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.12,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "batt_seg_off_2s",
+   "baseColor": [
+    0.01033,
+    0.01161,
+    0.01096,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "batt_seg_on_2s",
+   "baseColor": [
+    0.01033,
+    0.01161,
+    0.01096,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    0.04374,
+    1.0,
+    0.19462
+   ],
+   "emissionStrength": 3.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "battery",
+   "baseColor": [
+    0.14703,
+    0.15593,
+    0.17144,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "blackalu_2s",
+   "baseColor": [
+    0.016,
+    0.01681,
+    0.01938,
+    1.0
+   ],
+   "metallic": 0.6,
+   "roughness": 0.45,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "blackoxide",
+   "baseColor": [
+    0.02315,
+    0.02416,
+    0.02732,
+    1.0
+   ],
+   "metallic": 0.6,
+   "roughness": 0.45,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "bore",
+   "baseColor": [
+    0.00182,
+    0.00182,
+    0.00182,
+    1.0
+   ],
+   "metallic": 0.4,
+   "roughness": 0.6,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "cable",
+   "baseColor": [
+    0.0137,
+    0.0137,
+    0.0137,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.65,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "cable_red",
+   "baseColor": [
+    0.47932,
+    0.01681,
+    0.01033,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "camera",
+   "baseColor": [
+    0.016,
+    0.01681,
+    0.0185,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "camera_2s",
+   "baseColor": [
+    0.016,
+    0.01681,
+    0.0185,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "chip",
+   "baseColor": [
+    0.01764,
+    0.01764,
+    0.01764,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "chip_2s",
+   "baseColor": [
+    0.01764,
+    0.01764,
+    0.01764,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "connector",
+   "baseColor": [
+    0.7454,
+    0.4452,
+    0.04231,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "connector_2s",
+   "baseColor": [
+    0.7454,
+    0.4452,
+    0.04231,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "cover",
+   "baseColor": [
+    0.02029,
+    0.02029,
+    0.02315,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "deck",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.58,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "deck_2s",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.58,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "esc",
+   "baseColor": [
+    0.04231,
+    0.04519,
+    0.05127,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "fan_2s",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.58,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "foam",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.01938,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.9,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "goldano",
+   "baseColor": [
+    0.58408,
+    0.36131,
+    0.11193,
+    1.0
+   ],
+   "metallic": 0.9,
+   "roughness": 0.32,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "jetson_led",
+   "baseColor": [
+    0.7913,
+    0.80695,
+    0.76052,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.2,
+   "emission": [
+    0.0648,
+    1.0,
+    0.04231
+   ],
+   "emissionStrength": 4.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "label",
+   "baseColor": [
+    0.95597,
+    0.95597,
+    0.93869,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.6,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "label_lidar",
+   "baseColor": [
+    0.95597,
+    0.95597,
+    0.93869,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.6,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "led",
+   "baseColor": [
+    0.01764,
+    0.01764,
+    0.01764,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "led_dot",
+   "baseColor": [
+    0.8,
+    0.8,
+    0.8,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.35,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 1.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": "led-cells.png"
+  },
+  {
+   "name": "lens_barrel",
+   "baseColor": [
+    0.01033,
+    0.01033,
+    0.01096,
+    1.0
+   ],
+   "metallic": 0.3,
+   "roughness": 0.45,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "lens_glass",
+   "baseColor": [
+    0.00304,
+    0.00368,
+    0.00518,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.05,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 0.3,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "lens_pupil",
+   "baseColor": [
+    0.00091,
+    0.00091,
+    0.00091,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.15,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "lens_rings",
+   "baseColor": [
+    0.35153,
+    0.36131,
+    0.38133,
+    1.0
+   ],
+   "metallic": 0.5,
+   "roughness": 0.35,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "lidar_2s",
+   "baseColor": [
+    0.01161,
+    0.01229,
+    0.01444,
+    1.0
+   ],
+   "metallic": 0.05,
+   "roughness": 0.28,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "lidar_led_err",
+   "baseColor": [
+    0.007,
+    0.01033,
+    0.01764,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.25,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "lidar_led_run",
+   "baseColor": [
+    0.007,
+    0.01033,
+    0.01764,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.25,
+   "emission": [
+    0.02084,
+    0.11958,
+    0.9
+   ],
+   "emissionStrength": 1.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "lidarbase_2s",
+   "baseColor": [
+    0.19462,
+    0.20156,
+    0.21586,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "logo_red",
+   "baseColor": [
+    0.80695,
+    0.04092,
+    0.01161,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.45,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "logo_white",
+   "baseColor": [
+    0.77582,
+    0.77582,
+    0.76052,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "motor",
+   "baseColor": [
+    0.34191,
+    0.35153,
+    0.36625,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "mounts",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.58,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "nylon",
+   "baseColor": [
+    0.8388,
+    0.82279,
+    0.76052,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "orangepla",
+   "baseColor": [
+    0.87137,
+    0.10224,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.62,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "pcb_2s",
+   "baseColor": [
+    0.0,
+    0.11954,
+    0.51492,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "pcb_bottom_2s",
+   "baseColor": [
+    0.0,
+    0.11954,
+    0.51492,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "pcb_gold",
+   "baseColor": [
+    0.65837,
+    0.42869,
+    0.08438,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.3,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "pcb_gold_2s",
+   "baseColor": [
+    0.65837,
+    0.42869,
+    0.08438,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.3,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "pcb_led_blue_2s",
+   "baseColor": [
+    0.72306,
+    0.7913,
+    0.85499,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.2,
+   "emission": [
+    0.0137,
+    0.10462,
+    1.0
+   ],
+   "emissionStrength": 4.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "pcb_rgb_2s",
+   "baseColor": [
+    0.85499,
+    0.84687,
+    0.7913,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.3,
+   "emission": [
+    0.19462,
+    0.02519,
+    1.0
+   ],
+   "emissionStrength": 4.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "pcb_top_2s",
+   "baseColor": [
+    0.0,
+    0.11954,
+    0.51492,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "pcb_white",
+   "baseColor": [
+    0.85499,
+    0.84687,
+    0.7913,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "pcb_white_2s",
+   "baseColor": [
+    0.85499,
+    0.84687,
+    0.7913,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "plastic",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.58,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "plastic_2s",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.58,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "plate",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "redano",
+   "baseColor": [
+    0.57758,
+    0.0319,
+    0.01298,
+    1.0
+   ],
+   "metallic": 0.85,
+   "roughness": 0.3,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "rim",
+   "baseColor": [
+    0.68669,
+    0.04092,
+    0.01161,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "rj45_clear",
+   "baseColor": [
+    0.85499,
+    0.88792,
+    0.90466,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.08,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 0.35,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "router_led",
+   "baseColor": [
+    1.0,
+    0.04231,
+    0.02315,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    0.02315,
+    0.01033
+   ],
+   "emissionStrength": 1.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "servo",
+   "baseColor": [
+    0.05127,
+    0.05448,
+    0.06125,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "silk_2s",
+   "baseColor": [
+    0.77582,
+    0.77582,
+    0.76052,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.6,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "springblack",
+   "baseColor": [
+    0.01444,
+    0.01444,
+    0.01444,
+    1.0
+   ],
+   "metallic": 0.6,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "steel",
+   "baseColor": [
+    0.55201,
+    0.55834,
+    0.57112,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "steel_2s",
+   "baseColor": [
+    0.55201,
+    0.55834,
+    0.57112,
+    1.0
+   ],
+   "metallic": 1.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "switchred_2s",
+   "baseColor": [
+    0.68669,
+    0.03955,
+    0.01298,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.4,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "tyre",
+   "baseColor": [
+    0.01298,
+    0.01298,
+    0.01298,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.92,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "usb_tongue",
+   "baseColor": [
+    0.80695,
+    0.80695,
+    0.80695,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "vent",
+   "baseColor": [
+    0.007,
+    0.007,
+    0.0075,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.8,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "vent_2s",
+   "baseColor": [
+    0.007,
+    0.007,
+    0.0075,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.8,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": true,
+   "texture": ""
+  },
+  {
+   "name": "wing",
+   "baseColor": [
+    0.01938,
+    0.01938,
+    0.02122,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.55,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "wire_blue",
+   "baseColor": [
+    0.02843,
+    0.11444,
+    0.68669,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "wire_brown",
+   "baseColor": [
+    0.19462,
+    0.06848,
+    0.02315,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "wire_green",
+   "baseColor": [
+    0.02843,
+    0.36131,
+    0.06848,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "wire_orange",
+   "baseColor": [
+    0.87137,
+    0.19462,
+    0.01298,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  },
+  {
+   "name": "wire_white",
+   "baseColor": [
+    0.80695,
+    0.7913,
+    0.7454,
+    1.0
+   ],
+   "metallic": 0.0,
+   "roughness": 0.5,
+   "emission": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "emissionStrength": 0.0,
+   "alpha": 1.0,
+   "doubleSided": false,
+   "texture": ""
+  }
+ ]
+}

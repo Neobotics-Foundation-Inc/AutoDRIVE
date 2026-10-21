@@ -28,7 +28,13 @@ public static class NeoRacerPlayerBuild
             target = BuildTarget.StandaloneWindows64,
             options = BuildOptions.None,
         };
+        // The project builds with IL2CPP, which needs Unity's Windows IL2CPP
+        // module; Mono builds with the editor alone. The project's own
+        // setting is put back after the build.
+        ScriptingImplementation backend = PlayerSettings.GetScriptingBackend(BuildTargetGroup.Standalone);
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
         BuildReport report = BuildPipeline.BuildPlayer(options);
+        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, backend);
         BuildSummary s = report.summary;
         Debug.Log("NeoRacerPlayerBuild: " + s.result + ", " + s.totalErrors + " errors, " +
                   (s.totalSize / 1048576) + " MB, " + s.totalTime + " -> " + s.outputPath);
