@@ -99,7 +99,9 @@ public static class NeoRacerModelSwap
     {
         GameObject root = PrefabUtility.LoadPrefabContents(Prefab);
         CoSimManager cosim = root.GetComponentInChildren<CoSimManager>(true);
-        CoSimWheels wheels = cosim.gameObject.AddComponent<CoSimWheels>();
+        // Run again, it rewires the one CoSimWheels: two would both write the wheels
+        CoSimWheels wheels = cosim.GetComponent<CoSimWheels>();
+        if (wheels == null) wheels = cosim.gameObject.AddComponent<CoSimWheels>();
         wheels.CoSim = cosim;
         wheels.Vehicle = root.GetComponentInChildren<VehicleController>(true);
         Debug.Log("SWAP CoSimWheels on " + cosim.name + ", vehicle " + wheels.Vehicle.name);

@@ -33,8 +33,16 @@ public static class NeoRacerPlayerBuild
         // setting is put back after the build.
         ScriptingImplementation backend = PlayerSettings.GetScriptingBackend(BuildTargetGroup.Standalone);
         PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
-        BuildReport report = BuildPipeline.BuildPlayer(options);
-        PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, backend);
+        BuildReport report;
+        try
+        {
+            report = BuildPipeline.BuildPlayer(options);
+        }
+        finally
+        {
+            // BuildPlayer saves the project's settings: a build that throws must not leave Mono in them
+            PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, backend);
+        }
         BuildSummary s = report.summary;
         Debug.Log("NeoRacerPlayerBuild: " + s.result + ", " + s.totalErrors + " errors, " +
                   (s.totalSize / 1048576) + " MB, " + s.totalTime + " -> " + s.outputPath);
