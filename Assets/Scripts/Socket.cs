@@ -57,19 +57,22 @@ public class Socket : MonoBehaviour
         socket.On("connect", OnConnect); // Declare connection event `connect` and corresponding event handler `OnConnect`
         socket.On("Bridge", OnBridge); // Declare event `Bridge` and corresponding event handler `OnBridge`
         socket.On("disconnect", OnDisconnect); // Declare disconnection event `disconnect` and corresponding event handler `OnDisconnect`
-        // Temporary render textures for all vehicles except the first one (first vehicle will render to GUI)
+        // Temporary render textures for the vehicles after the first (the first renders to the GUI) whose
+        // cameras share its texture; a camera given a texture of its own keeps it (and its size)
         if(FrontCameras.Length != 0)
         {
             for(int i=1;i<FrontCameras.Length;i++)
             {
-                FrontCameras[i].targetTexture = new RenderTexture(1280, 720, 16, RenderTextureFormat.ARGB32);
+                if(FrontCameras[i].targetTexture == FrontCameras[0].targetTexture)
+                    FrontCameras[i].targetTexture = new RenderTexture(1280, 720, 16, RenderTextureFormat.ARGB32);
             }
         }
         if(RearCameras.Length != 0)
         {
             for(int i=1;i<RearCameras.Length;i++)
             {
-                RearCameras[i].targetTexture = new RenderTexture(1280, 720, 16, RenderTextureFormat.ARGB32);
+                if(RearCameras[i].targetTexture == RearCameras[0].targetTexture)
+                    RearCameras[i].targetTexture = new RenderTexture(1280, 720, 16, RenderTextureFormat.ARGB32);
             }
         }
     }

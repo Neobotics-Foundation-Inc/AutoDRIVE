@@ -9,7 +9,9 @@ using UnityEngine;
 // "NeoRacer - Purdue Testbed - Two Cars" (built after NeoRacerTestbed) 0.65 m behind
 // it on its lane (a 17 cm gap between the cars).
 //
-// Car 2 is a fresh instance of the NeoRacer prefab. Every per-vehicle array of the
+// Car 2 is a fresh instance of the NeoRacer prefab with car 1's overrides in the scene
+// (the HUD its LiDAR draws on: without it the LiDAR throws every physics step, and the
+// simulator runs at a sixth of its rate). Every per-vehicle array of the
 // scene's Socket gets car 2's component from the same place in its hierarchy as car 1's,
 // and a second Reset Manager keeps car 2 kinematic while co-simulation poses it. The lap
 // timer and its HUD stay car 1's (car 2's lap timer is off, the Socket's LapTimers keep
@@ -70,6 +72,20 @@ public static class NeoRacerTwoCars
         GameObject prefab = PrefabUtility.GetCorrespondingObjectFromSource(root1);
 
         GameObject root2 = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+        // Car 1's overrides in the scene are car 2's too, but for its place and name: among them
+        // the HUD its LiDAR draws the scan on, a scene object the prefab cannot hold. Set before
+        // anything else on car 2: setting a prefab instance's overrides resets what was changed on
+        // it and not yet recorded as one.
+        Transform rootAsset = PrefabUtility.GetCorrespondingObjectFromSource(root1.transform);
+        List<PropertyModification> mods = new List<PropertyModification>(PrefabUtility.GetPropertyModifications(root2));
+        foreach (PropertyModification m in PrefabUtility.GetPropertyModifications(root1))
+        {
+            if (m.target == rootAsset || m.target == prefab) continue;
+            Transform at = m.objectReference is Component mc ? mc.transform : m.objectReference is GameObject mg ? mg.transform : null;
+            if (at != null && at.IsChildOf(root1.transform)) m.objectReference = Remap(m.objectReference);
+            mods.Add(m);
+        }
+        PrefabUtility.SetPropertyModifications(root2, mods.ToArray());
         root2.name = root1.name + " 2";
         root2.transform.SetParent(root1.transform.parent, false);
         Transform body1 = vc1.VehicleRigidBody.transform;
@@ -155,16 +171,47 @@ public static class NeoRacerTwoCars
         managers.GetArrayElementAtIndex(1).objectReferenceValue = rm2;
         s.ApplyModifiedPropertiesWithoutUndo();
 
-        bool ok = Audit(s, grown, root1, root2, r2);
+        bool ok = Audit(s, grown, root1, root2, r2, Remap);
+        Vector3 offset = root2.transform.position - root1.transform.position;
+        float ahead2 = Vector3.Dot(offset, body1.forward), left2 = -Vector3.Dot(offset, body1.right);
+        bool placed = Mathf.Abs(ahead2 - ahead) < 1e-3f && Mathf.Abs(left2 - left) < 1e-3f
+                      && Quaternion.Angle(root2.transform.rotation, root1.transform.rotation) < 0.01f;
+        Debug.Log("TWO CARS car 2 " + ahead2.ToString("F3") + " m ahead of car 1, " + left2.ToString("F3") + " m left, turned "
+                  + Quaternion.Angle(root2.transform.rotation, root1.transform.rotation).ToString("F2") + " deg from it" + (placed ? "" : " WRONG"));
+        ok &= placed && root2.name == root1.name + " 2";
         if (!ok) return false;
         EditorSceneManager.SaveScene(scene, target);
         AssetDatabase.SaveAssets();
         return true;
     }
 
-    static bool Audit(SerializedObject s, List<string> grown, GameObject root1, GameObject root2, SerializedObject r2)
+    static bool Audit(SerializedObject s, List<string> grown, GameObject root1, GameObject root2, SerializedObject r2,
+                      System.Func<Object, Object> remap)
     {
         bool ok = true;
+        // Car 2 refers to what car 1 does: the same scene objects and assets, its own parts for
+        // car 1's, but for its camera's texture.
+        int refs = 0, wrong = 0;
+        foreach (Component c1 in root1.GetComponentsInChildren<Component>(true))
+        {
+            SerializedObject o2 = new SerializedObject(remap(c1));
+            SerializedProperty q = new SerializedObject(c1).GetIterator();
+            while (q.Next(true))
+            {
+                if (q.propertyType != SerializedPropertyType.ObjectReference || q.objectReferenceValue == null
+                    || q.propertyPath == "m_PrefabInstance" || (c1 is Camera && q.propertyPath == "m_TargetTexture")) continue;
+                Object want = q.objectReferenceValue, got = o2.FindProperty(q.propertyPath).objectReferenceValue;
+                Transform at = want is Component wc ? wc.transform : want is GameObject wg ? wg.transform : null;
+                if (at != null && at.IsChildOf(root1.transform)) want = remap(want);
+                refs++;
+                if (got == want) continue;
+                wrong++;
+                Debug.LogError("TWO CARS car 2's " + c1.GetType().Name + " on " + c1.name + "." + q.propertyPath + " is "
+                               + (got == null ? "null" : got.name) + "; car 1's is " + want.name);
+            }
+        }
+        Debug.Log("TWO CARS car 2 refers to what car 1 does: " + (refs - wrong) + " of " + refs + " references");
+        ok &= wrong == 0;
         s.Update();
         foreach (string name in grown)
         {
