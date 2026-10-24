@@ -17,6 +17,9 @@ public class CLIManager : MonoBehaviour
     public InputField IP;
     public InputField Port;
 
+    // -connect: connect at start, as in batch mode, without pressing Connect
+    private bool connect = false;
+
     // Set parameters based on command line arguments
     void Awake()
     {
@@ -31,12 +34,16 @@ public class CLIManager : MonoBehaviour
             {
                 Port.text = args[i + 1];
             }
+            if (args[i].ToLower() == "-connect")
+            {
+                connect = true;
+            }
         }
     }
 
     void Start()
     {
-        if (Application.isBatchMode)
+        if (Application.isBatchMode || connect)
         {
             Socket.SetActive(true);
             SocketIO.SetActive(true);

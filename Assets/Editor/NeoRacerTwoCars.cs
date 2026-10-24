@@ -6,8 +6,8 @@ using UnityEngine;
 // Builds a two-car scene: a NeoRacer scene with a second NeoRacer by the first as
 // AutoDRIVE's vehicle 2, for two real cars co-simulated at once (v2v_view.py
 // --autodrive CAR1 CAR2). "NeoRacer - AuE-X930 - Two Cars" has car 2 beside car 1;
-// "NeoRacer - Purdue Testbed - Two Cars" (built after NeoRacerTestbed) behind it on
-// its lane.
+// "NeoRacer - Purdue Testbed - Two Cars" (built after NeoRacerTestbed) 0.65 m behind
+// it on its lane (a 17 cm gap between the cars).
 //
 // Car 2 is a fresh instance of the NeoRacer prefab. Every per-vehicle array of the
 // scene's Socket gets car 2's component from the same place in its hierarchy as car 1's,
@@ -31,7 +31,7 @@ public static class NeoRacerTwoCars
     static void Menu() => FromMenu(AuE, AuETwo, 0f, 0.6f);
 
     [MenuItem("AutoDRIVE/NeoRacer: Build Purdue Testbed Two-Car Scene")]
-    static void MenuTestbed() => FromMenu(NeoRacerTestbed.Target, TestbedTwo, -1.5f, 0f);
+    static void MenuTestbed() => FromMenu(NeoRacerTestbed.Target, TestbedTwo, -0.65f, 0f);
 
     static void FromMenu(string source, string target, float ahead, float left)
     {
@@ -50,10 +50,10 @@ public static class NeoRacerTwoCars
         EditorApplication.Exit(Make(AuE, AuETwo, 0f, 0.6f) ? 0 : 1);
     }
 
-    // Car 2 on car 1's lane, 1.5 m behind it
+    // Car 2 on car 1's lane, 0.65 m behind it
     public static void BuildTestbed()
     {
-        EditorApplication.Exit(Make(NeoRacerTestbed.Target, TestbedTwo, -1.5f, 0f) ? 0 : 1);
+        EditorApplication.Exit(Make(NeoRacerTestbed.Target, TestbedTwo, -0.65f, 0f) ? 0 : 1);
     }
 
     // `ahead` and `left`: car 2's place from car 1's, m along and across car 1's heading.

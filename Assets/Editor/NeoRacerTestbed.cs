@@ -29,9 +29,9 @@ public static class NeoRacerTestbed
     const string Template = "Assets/Models/Vehicle/NeoRacer/Materials/Low Gloss Plastic - Black.mat";
     static readonly string[] OldTrack = { "Floor", "Infrastructure" };
     public const string StartLane = "loop2_fwd";
-    public const float StartS = 2f;
+    public const float StartS = 1f;      // m along it: on the top straight, which runs to 1.4 m
     const float Foam = 0.012f;      // m: the mat's thickness (cosmetic)
-    const float FloorSize = 40f;    // m square of floor around the mat (cosmetic)
+    const float FloorSize = 20f;    // m square of floor around the mat (cosmetic)
     const string Wood = "#a9937d";  // the floor beside the mat in the photo
     // Tape lies this far over the mat, each colour a little higher so none flicker
     const float WhiteLift = 0.0006f, YellowLift = 0.0008f, RedLift = 0.0010f;
