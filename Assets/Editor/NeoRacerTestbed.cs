@@ -120,6 +120,13 @@ public static class NeoRacerTestbed
         GameObject car = roots["NeoRacer"];
         (Vector2 at, float heading) = LanePose(map, StartLane, StartS);
         car.transform.SetPositionAndRotation(U(at, Foam), Quaternion.Euler(0f, -heading * Mathf.Rad2Deg, 0f));
+        // ... standing on its wheels, 1 mm above the mat (as neoracer-mujoco spawns it): a wheel
+        // collider's place is where the wheel rests (NeoRacerPhysics), its radius above the ground.
+        // Its root on the mat put the wheels 39 mm into it, past the springs' travel, and the car
+        // was thrown into the air
+        WheelCollider wheel = car.GetComponentInChildren<VehicleController>(true).FrontLeftWheelCollider;
+        float lift = wheel.radius - (wheel.transform.position.y - car.transform.position.y) + 0.001f;
+        car.transform.position += Vector3.up * lift;
         foreach (LapTimer timer in car.GetComponentsInChildren<LapTimer>(true))
         {
             timer.enabled = false;
@@ -151,7 +158,7 @@ public static class NeoRacerTestbed
         int missing = Audit(scene);
         Debug.Log("TESTBED mat " + width.ToString("F2") + " x " + length.ToString("F2") + " m, " + whites.Count +
                   " white lines, " + dashes.Count + " dashes, " + stops.Count + " stop lines; car on " + StartLane +
-                  " at " + StartS + " m (" + at.x.ToString("F2") + ", " + at.y.ToString("F2") + "); " +
+                  " at " + StartS + " m (" + at.x.ToString("F2") + ", " + at.y.ToString("F2") + "), root " + (car.transform.position.y - Foam).ToString("F4") + " m over the mat; " +
                   missing + " references left dangling");
         EditorSceneManager.SaveScene(scene, Target);
         AssetDatabase.SaveAssets();
