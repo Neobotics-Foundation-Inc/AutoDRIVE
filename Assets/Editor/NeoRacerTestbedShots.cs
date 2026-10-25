@@ -56,7 +56,8 @@ public static class NeoRacerTestbedShots
             Shot(cam, dir, "junction" + k++, 1920, 1080, e, Quaternion.LookRotation(c - e));
         }
         // from where a photo of the track was taken, if given (a JSON file: pos, fwd, up in
-        // Unity, vfov in degrees; trace_track_photo's camera, solved from the mat's corners)
+        // Unity, vfov in degrees, size of the still in pixels, the photo's shape; the photo's
+        // camera, solved from the mat's corners)
         int photo = Array.IndexOf(args, "-neoracerPhotoCam");
         if (photo >= 0)
         {
@@ -64,7 +65,9 @@ public static class NeoRacerTestbedShots
             Vector3 V(string key) => new Vector3(pose.GetField(key).list[0].f, pose.GetField(key).list[1].f,
                                                  pose.GetField(key).list[2].f);
             cam.fieldOfView = pose.GetField("vfov").f;
-            Shot(cam, dir, "photo_view", 1428, 1071, V("pos"), Quaternion.LookRotation(V("fwd"), V("up")));
+            JSONObject size = pose.GetField("size");
+            Shot(cam, dir, "photo_view", (int)size.list[0].f, (int)size.list[1].f, V("pos"),
+                 Quaternion.LookRotation(V("fwd"), V("up")));
         }
         // behind car 1, low, the way it faces
         VehicleController car = null;
