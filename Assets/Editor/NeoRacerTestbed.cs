@@ -28,8 +28,10 @@ public static class NeoRacerTestbed
     const string MapFile = Dir + "/purdue_testbed.json";
     const string Template = "Assets/Models/Vehicle/NeoRacer/Materials/Low Gloss Plastic - Black.mat";
     static readonly string[] OldTrack = { "Floor", "Infrastructure" };
-    public const string StartLane = "loop2_fwd";
-    public const float StartS = 1f;      // m along it: on the top straight, which runs to 1.4 m
+    public const string StartLane = "loop1_fwd";
+    // m along it: on the near straight (2.1 to 4.6 m), with room behind for the two-car
+    // scene's car 2, which stands where the car does in the track's photo
+    public const float StartS = 2.9f;
     const float Foam = 0.012f;      // m: the mat's thickness (cosmetic)
     const float FloorSize = 20f;    // m square of floor around the mat (cosmetic)
     const string Wood = "#a9937d";  // the floor beside the mat in the photo
