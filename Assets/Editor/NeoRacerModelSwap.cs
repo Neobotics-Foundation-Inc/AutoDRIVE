@@ -6,11 +6,19 @@ using UnityEditor;
 using UnityEditor.Rendering.HighDefinition;
 using UnityEngine;
 
-// Puts the NeoRacer Playground's car model (neoracer-model's race build, as
-// Models/Vehicle/NeoRacer/Playground/NeoRacer Playground.fbx) on the NeoRacer
-// prefab in place of the earlier visual model, and keeps the vehicle as it is:
-// every collider, wheel collider, sensor and script stays, only what is drawn
-// changes. Batchmode:
+// Puts the NeoRacer's finished CAD model (neoracer-model's parametric car, as
+// Models/Vehicle/NeoRacer/CAD/NeoRacer CAD.fbx, made by Tools/neoracer_cad_mesh.py
+// and Tools/neoracer_cad_fbx.py) on the NeoRacer prefab, with what the CAD
+// measures:
+// - the drawn model, in place of the earlier one;
+// - the wheels' places: each wheel collider rests where the model's wheel is
+//   (the CAD's track, wheelbase and stance: its front axle sits 5.7 mm lower,
+//   so the car rests 1.1 degrees nose up);
+// - the body's collider, the convex hull of the CAD's body, in place of the
+//   earlier model's nine; and the tires' colliders, the tires' size;
+// - the camera's place and lean, and the LiDAR's place.
+// Every other sensor, script and reference stays. NeoRacerPhysics.Apply runs
+// after it: the car's physics stands on the wheels' places. Batchmode:
 //   -executeMethod NeoRacerModelSwap.Report   measurements only, no change
 //   -executeMethod NeoRacerModelSwap.Apply    import, materials, prefab, audit
 //   -executeMethod NeoRacerModelSwap.AddCoSimWheels
@@ -18,21 +26,31 @@ using UnityEngine;
 //                                             co-simulation poses the car
 public static class NeoRacerModelSwap
 {
-    const string Dir = "Assets/Models/Vehicle/NeoRacer/Playground";
-    const string Fbx = Dir + "/NeoRacer Playground.fbx";
-    const string Json = Dir + "/NeoRacer Playground.json";
+    const string Dir = "Assets/Models/Vehicle/NeoRacer/CAD";
+    const string Fbx = Dir + "/NeoRacer CAD.fbx";
+    const string Json = Dir + "/NeoRacer CAD.json";
+    // The body's hull as a mesh of its own: a mesh collider cooks its mesh when the
+    // player loads (Project Settings do not prebake them), so it must be readable,
+    // and the model's meshes are not (they would take twice the memory)
+    const string HullAsset = Dir + "/NeoRacer CAD Collider.asset";
     const string MaterialDir = Dir + "/Materials";
     const string TextureDir = Dir + "/Textures";
     const string OldFbx = "Assets/Models/Vehicle/NeoRacer/NeoRacer.fbx";
     const string Prefab = "Assets/Prefabs/NeoRacer/NeoRacer.prefab";
     const string Templates = "Assets/Models/Vehicle/NeoRacer/Materials/";
     const string ModelName = "NeoRacer Model";
-    // AutoDRIVE's NeoRacer LED shines at 300 nits; the Playground's lights
-    // have emission strengths 1 to 4, so 100 nits per unit of strength.
+    const string StreamedCamera = "Preview", DashCamera = "Dashcam";
+    // AutoDRIVE's NeoRacer LED shines at 300 nits; the model's lights have
+    // emission strengths 1 to 4, so 100 nits per unit of strength.
     const float NitsPerStrength = 100f;
     static readonly string[] Corners = { "FL", "FR", "RL", "RR" };
 
-    [Serializable] class Spec { public string source; public int triangles; public string[] parts; public WheelSpec[] wheels; public MatSpec[] materials; }
+    [Serializable] class Spec
+    {
+        public string source; public int triangles; public string[] parts; public ColliderSpec collider; public WheelSpec[] wheels;
+        public float[] camera; public float camera_lean_degrees; public float[] lidar; public MatSpec[] materials;
+    }
+    [Serializable] class ColliderSpec { public float[] vertices; public int[] triangles; public float body_outside_max; }
     [Serializable] class WheelSpec { public string name; public float[] centre; public float radius; public float width; }
     [Serializable] class MatSpec
     {
@@ -42,9 +60,10 @@ public static class NeoRacerModelSwap
 
     static Spec LoadSpec() => JsonUtility.FromJson<Spec>(File.ReadAllText(Json));
 
-    // A wheel centre in the model's own frame: the spec is Blender's frame
-    // (x right, y forward, z up), the model Unity's (x right, y up, z forward).
-    static Vector3 ModelCentre(WheelSpec w) => new Vector3(w.centre[0], w.centre[2], w.centre[1]);
+    // A point in the model's own frame: the spec is Blender's frame (x right,
+    // y forward, z up), the model Unity's (x right, y up, z forward).
+    static Vector3 ModelPoint(float[] p) => new Vector3(p[0], p[2], p[1]);
+    static Vector3 ModelCentre(WheelSpec w) => ModelPoint(w.centre);
 
     static WheelCollider[] Colliders(VehicleController vc) => new[] {
         vc.FrontLeftWheelCollider, vc.FrontRightWheelCollider, vc.RearLeftWheelCollider, vc.RearRightWheelCollider };
@@ -129,6 +148,9 @@ public static class NeoRacerModelSwap
         mi.materialImportMode = ModelImporterMaterialImportMode.ImportViaMaterialDescription;
         mi.materialLocation = ModelImporterMaterialLocation.InPrefab;
 
+        // A fresh folder each run: a material an earlier build made and this one does not stays out
+        AssetDatabase.DeleteAsset(MaterialDir);
+        AssetDatabase.CreateFolder(Dir, "Materials");
         Material opaque = AssetDatabase.LoadAssetAtPath<Material>(Templates + "Low Gloss Plastic - Black.mat");
         Material clear = AssetDatabase.LoadAssetAtPath<Material>(Templates + "Camera Lens.mat");
         Material light = AssetDatabase.LoadAssetAtPath<Material>(Templates + "LED - Red.mat");
@@ -155,9 +177,7 @@ public static class NeoRacerModelSwap
                 m.SetTexture("_EmissiveColorMap", tex);
             }
             HDShaderUtils.ResetMaterialKeywords(m);
-            string path = MaterialDir + "/" + s.name + ".mat";
-            AssetDatabase.DeleteAsset(path);
-            AssetDatabase.CreateAsset(m, path);
+            AssetDatabase.CreateAsset(m, MaterialDir + "/" + s.name + ".mat");
             mi.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material), s.name), m);
         }
         mi.SaveAndReimport();
@@ -177,6 +197,20 @@ public static class NeoRacerModelSwap
             .Where(m => m == null || AssetDatabase.GetAssetPath(m) == Fbx).Select(m => m == null ? "null" : m.name).Distinct().ToList();
         if (unmapped.Count > 0)
             throw new Exception("materials not remapped to " + MaterialDir + ": " + string.Join(", ", unmapped));
+
+        // The hull, in the model's frame; Blender's frame is right handed and Unity's left,
+        // so each triangle turns the other way round to face out
+        float[] v = spec.collider.vertices;
+        int[] t = spec.collider.triangles;
+        Mesh hull = new Mesh { name = "NeoRacer CAD Collider" };
+        hull.vertices = Enumerable.Range(0, v.Length / 3).Select(i => ModelPoint(new[] { v[3 * i], v[3 * i + 1], v[3 * i + 2] })).ToArray();
+        hull.triangles = Enumerable.Range(0, t.Length).Select(i => t[i - i % 3 + (3 - i % 3) % 3]).ToArray();
+        hull.RecalculateNormals();
+        hull.RecalculateBounds();
+        AssetDatabase.DeleteAsset(HullAsset);
+        AssetDatabase.CreateAsset(hull, HullAsset);
+        Debug.Log("SWAP body collider " + HullAsset + ": " + t.Length / 3 + " triangles, the body " +
+                  (1000f * spec.collider.body_outside_max).ToString("F1") + " mm outside it at most");
     }
 
     static void SwapPrefab(Spec spec)
@@ -185,13 +219,20 @@ public static class NeoRacerModelSwap
         VehicleController vc = root.GetComponentInChildren<VehicleController>(true);
         Transform vehicle = vc.VehicleRigidBody.transform;
 
+        // The tires' colliders hang on the drawn wheels (NeoRacerPhysics): they leave the
+        // earlier model's wheels before it goes
+        MeshCollider[] tires = root.GetComponentsInChildren<MeshCollider>(true).Where(c => c.name == "Collider").ToArray();
+        if (tires.Length != 4)
+            throw new Exception("expected 4 tire colliders named Collider, found " + tires.Length);
+        foreach (MeshCollider tire in tires)
+            tire.transform.SetParent(vehicle, true);
         Transform earlier = vehicle.Find(ModelName);
         if (earlier != null)
             UnityEngine.Object.DestroyImmediate(earlier.gameObject);
 
-        // The earlier model stops being drawn; its objects stay, as other
-        // components and the scene point at them.
-        int removed = 0;
+        // Upstream's model stops being drawn and colliding; its objects stay, as other
+        // components and the scenes point at them.
+        int removed = 0, uncollided = 0;
         foreach (MeshFilter f in root.GetComponentsInChildren<MeshFilter>(true))
         {
             if (f.sharedMesh == null || AssetDatabase.GetAssetPath(f.sharedMesh) != OldFbx)
@@ -202,8 +243,15 @@ public static class NeoRacerModelSwap
             UnityEngine.Object.DestroyImmediate(f);
             removed++;
         }
+        foreach (MeshCollider c in root.GetComponentsInChildren<MeshCollider>(true))
+        {
+            if (c.sharedMesh == null || AssetDatabase.GetAssetPath(c.sharedMesh) != OldFbx)
+                continue;
+            UnityEngine.Object.DestroyImmediate(c);
+            uncollided++;
+        }
 
-        // The new model under the vehicle, its rear axle on the vehicle's.
+        // The new model under the vehicle, its rear axle where the vehicle's rests.
         GameObject model = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(Fbx), vehicle);
         PrefabUtility.UnpackPrefabInstance(model, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
         model.name = ModelName;
@@ -214,6 +262,42 @@ public static class NeoRacerModelSwap
         model.transform.localRotation = Quaternion.identity;
         model.transform.localScale = new Vector3(1f / vehicle.lossyScale.x, 1f / vehicle.lossyScale.y, 1f / vehicle.lossyScale.z);
         model.transform.localPosition = rearAxle - Vector3.Scale(modelRearAxle, model.transform.localScale);
+        Func<float[], Vector3> world = p => model.transform.TransformPoint(ModelPoint(p));
+
+        // Each wheel collider rests at its wheel's centre
+        for (int i = 0; i < 4; i++)
+        {
+            Vector3 was = RestCentre(vehicle, cols[i]);
+            Transform wheel = model.transform.Find("Wheel " + Corners[i]);
+            cols[i].transform.position += wheel.position - vehicle.TransformPoint(was);
+            Debug.Log("SWAP " + Corners[i] + " wheel collider rests at " + V(RestCentre(vehicle, cols[i])) + ", was " + V(was));
+        }
+
+        // The tires' colliders on the new wheels, each the tire's size (upstream's cylinder:
+        // 1 across, 2 long, on its y axis, which lies along the axle)
+        foreach (MeshCollider tire in tires)
+        {
+            WheelSpec w = spec.wheels.OrderBy(s => (world(s.centre) - tire.transform.position).sqrMagnitude).First();
+            tire.transform.SetParent(model.transform.Find(w.name), false);
+            tire.transform.localPosition = Vector3.zero;
+            tire.transform.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            tire.transform.localScale = new Vector3(2f * w.radius, w.width / 2f, 2f * w.radius);
+        }
+
+        // The body collides as the CAD body's hull (not named Collider: those are the tires')
+        GameObject hull = new GameObject("Body Collider");
+        hull.transform.SetParent(model.transform, false);
+        MeshCollider body = hull.AddComponent<MeshCollider>();
+        body.sharedMesh = AssetDatabase.LoadAssetAtPath<Mesh>(HullAsset);
+        body.convex = true;
+
+        // The camera (the one streamed, and the dashcam beside it) and the LiDAR where the CAD has them
+        Camera[] cams = root.GetComponentsInChildren<Camera>(true);
+        Camera streamed = cams.Single(c => c.name == StreamedCamera), dash = cams.Single(c => c.name == DashCamera);
+        streamed.transform.SetPositionAndRotation(world(spec.camera), vehicle.rotation * Quaternion.Euler(-spec.camera_lean_degrees, 0f, 0f));
+        dash.transform.position = world(spec.camera);
+        LIDAR lidar = root.GetComponentInChildren<LIDAR>(true);
+        lidar.transform.position = world(spec.lidar);
 
         // The wheels the vehicle drives: each frame it sets their pose from
         // the wheel colliders, so they spin, steer and ride the suspension.
@@ -223,8 +307,11 @@ public static class NeoRacerModelSwap
             so.FindProperty(fields[i]).objectReferenceValue = model.transform.Find("Wheel " + Corners[i]);
         so.ApplyModifiedPropertiesWithoutUndo();
 
-        Debug.Log("SWAP prefab: earlier model drawn meshes removed " + removed + ", " + ModelName + " at " + V(model.transform.localPosition) +
-                  " (rear axle " + V(rearAxle) + "), wheels now " + string.Join(", ", fields.Select(f => so.FindProperty(f).objectReferenceValue.name)));
+        Debug.Log("SWAP prefab: upstream's drawn meshes removed " + removed + ", its colliders " + uncollided + "; " + ModelName + " at " +
+                  V(model.transform.localPosition) + " (rear axle " + V(rearAxle) + "), wheels now " +
+                  string.Join(", ", fields.Select(f => so.FindProperty(f).objectReferenceValue.name)) +
+                  "; camera at " + V(vehicle.InverseTransformPoint(streamed.transform.position)) + " leaning " + spec.camera_lean_degrees +
+                  " degrees up, LiDAR at " + V(vehicle.InverseTransformPoint(lidar.transform.position)));
         PrefabUtility.SaveAsPrefabAsset(root, Prefab);
         PrefabUtility.UnloadPrefabContents(root);
     }

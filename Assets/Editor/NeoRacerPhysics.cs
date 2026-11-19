@@ -6,14 +6,17 @@ using UnityEngine;
 // one description of the car (its spec, neoracer_spec). Tools/neoracer_spec_export.py writes
 // what a Unity car needs from it to Assets/Prefabs/NeoRacer/neoracer_spec.json: the settled
 // car's mass, center of mass and inertia, the wheels, the springs, the motor, the steering
-// servo and the firmware's speed loop. This puts them on the prefab:
+// servo, the firmware's speed loop and the IMU's place. This puts them on the prefab:
 // - its VehicleController becomes a NeoRacerController (the same component, so every scene's
 //   references to it hold), which runs the speed loop, the motor and the servo;
 // - the rigid body is the whole car: its mass, no drag (the model has none), the center of
 //   mass over the middle of the wheelbase at its height above the axle line, the inertia;
+// - the wheels' places are the CAD's (NeoRacerModelSwap puts the wheel colliders there): the
+//   axle line runs through them, and the steering's wheelbase and track are theirs;
 // - each wheel collider: the tire's radius and mass, the drivetrain's losses, the springs'
 //   stiffness and damping, their travel (droop and jounce) about the wheel's place in the
 //   model, which is where it rests;
+// - the IMU where the spec has it, over the axle line as the center of mass is;
 // - the tires' grip: the model's friction is a coefficient and no curve, so the curves peak at
 //   it and hold it, rising over the slips set here (FORWARD_SLIP, SIDEWAYS_SLIP), chosen so the
 //   car's turns match the model's (see the commit that set them).
@@ -68,13 +71,19 @@ public static class NeoRacerPhysics
         WheelCollider[] all = { car.FrontLeftWheelCollider, car.FrontRightWheelCollider,
                                 car.RearLeftWheelCollider, car.RearRightWheelCollider };
 
-        // The axle line, in the rigid body's frame: the wheels' places, where they rest
+        // The axle line, in the rigid body's frame: the wheels' places, where they rest. The car
+        // stands on it: its up is square to it (the CAD's front axle sits lower than the rear)
         Transform t = rb.transform;
-        Vector3 front = (t.InverseTransformPoint(all[0].transform.position) + t.InverseTransformPoint(all[1].transform.position)) / 2;
-        Vector3 rear = (t.InverseTransformPoint(all[2].transform.position) + t.InverseTransformPoint(all[3].transform.position)) / 2;
+        Vector3[] at = { t.InverseTransformPoint(all[0].transform.position), t.InverseTransformPoint(all[1].transform.position),
+                         t.InverseTransformPoint(all[2].transform.position), t.InverseTransformPoint(all[3].transform.position) };
+        Vector3 front = (at[0] + at[1]) / 2, rear = (at[2] + at[3]) / 2;
         Vector3 forward = (front - rear).normalized;
+        Vector3 up = Vector3.ProjectOnPlane(Vector3.up, forward).normalized;
         var com = body.GetField("center_of_mass").list;
-        car.COM = (front + rear) / 2 + forward * com[0].f + Vector3.up * com[2].f; // the model's +Y left is 0
+        car.COM = (front + rear) / 2 + forward * com[0].f + up * com[2].f; // the model's +Y left is 0
+        var imuAt = spec.GetField("imu").GetField("position").list;
+        IMU imu = root.GetComponentInChildren<IMU>(true);
+        imu.transform.position = t.TransformPoint((front + rear) / 2 + forward * imuAt[0].f + up * imuAt[2].f);
         var inertia = body.GetField("inertia").list;
         // The model's axes (x forward, y left, z up) are Unity's z, -x and y
         car.Inertia = new Vector3(inertia[1].list[1].f, inertia[2].list[2].f, inertia[0].list[0].f);
@@ -140,8 +149,9 @@ public static class NeoRacerPhysics
         car.TireSubsteps = TIRE_SUBSTEPS;
 
         // The rest of the body's colliders must clear the ground with the car at rest on its
-        // wheels (the wheels' centers at their places, a radius above the ground)
-        float ground = t.InverseTransformPoint(all[0].transform.position).y - F(wheels, "radius");
+        // wheels (the wheels' centers at their places, a radius above the ground, which lies
+        // along the axle line)
+        float radius = F(wheels, "radius");
         bool clear = true;
         foreach (Collider c in root.GetComponentsInChildren<Collider>(true))
         {
@@ -151,13 +161,17 @@ public static class NeoRacerPhysics
             if (c is BoxCollider box) b = new Bounds(box.center, box.size);
             else if (c is SphereCollider sphere) b = new Bounds(sphere.center, Vector3.one * 2f * sphere.radius);
             else if (c is CapsuleCollider capsule) b = new Bounds(capsule.center, Vector3.one * 2f * Mathf.Max(capsule.radius, capsule.height / 2f));
-            for (int i = 0; i < 8; i++)
-            {
-                Vector3 corner = b.center + Vector3.Scale(b.extents, new Vector3(i & 1, (i >> 1) & 1, (i >> 2) & 1) * 2f - Vector3.one);
-                lowest = Mathf.Min(lowest, t.InverseTransformPoint(c.transform.TransformPoint(corner)).y);
-            }
-            Debug.Log("PHYSICS collider " + c.GetType().Name + " on " + c.name + ": lowest " + ((lowest - ground) * 1000f).ToString("F1") + " mm over the ground");
-            if (lowest - ground <= 0f) clear = false;
+            if (c is MeshCollider hull && hull.convex)
+                foreach (Vector3 v in hull.sharedMesh.vertices)
+                    lowest = Mathf.Min(lowest, Vector3.Dot(t.InverseTransformPoint(c.transform.TransformPoint(v)) - rear, up) + radius);
+            else
+                for (int i = 0; i < 8; i++)
+                {
+                    Vector3 corner = b.center + Vector3.Scale(b.extents, new Vector3(i & 1, (i >> 1) & 1, (i >> 2) & 1) * 2f - Vector3.one);
+                    lowest = Mathf.Min(lowest, Vector3.Dot(t.InverseTransformPoint(c.transform.TransformPoint(corner)) - rear, up) + radius);
+                }
+            Debug.Log("PHYSICS collider " + c.GetType().Name + " on " + c.name + ": lowest " + (lowest * 1000f).ToString("F1") + " mm over the ground");
+            if (lowest <= 0f) clear = false;
         }
         if (!clear)
         {
@@ -166,9 +180,9 @@ public static class NeoRacerPhysics
             return false;
         }
 
-        car.Wheelbase = 2000f * F(wheels, "half_wheelbase"); // mm, as VehicleController's Ackermann takes them
-        car.TrackWidth = 2000f * F(wheels, "half_track");
-        car.WheelRadius = F(wheels, "radius");
+        car.Wheelbase = 1000f * (front - rear).magnitude; // mm, as VehicleController's Ackermann takes them
+        car.TrackWidth = 1000f * (at[1] - at[0]).magnitude; // the steered axle's
+        car.WheelRadius = radius;
         car.driveType = VehicleController.DriveType.CAWD; // one motor, open differentials: a quarter each
         car.MotorTorque = 1f; // the telemetry's throttle is then the ESC's share of the battery
         car.SteeringLimit = F(servo, "lock") * Mathf.Rad2Deg;
@@ -207,6 +221,10 @@ public static class NeoRacerPhysics
         car.SteerFriction = F(servo, "frictionloss");
 
         string report = "PHYSICS mass " + rb.mass + " kg, COM " + car.COM.ToString("F4") + ", inertia " + car.Inertia.ToString("F5") +
+                  "; IMU at " + t.InverseTransformPoint(imu.transform.position).ToString("F4") +
+                  "; wheelbase " + car.Wheelbase.ToString("F1") + " mm (spec " + (2000f * F(wheels, "half_wheelbase")).ToString("F1") +
+                  "), front track " + car.TrackWidth.ToString("F1") + " mm (spec " + (2000f * F(wheels, "half_track")).ToString("F1") +
+                  "), on level ground the body rests " + (Mathf.Asin(-forward.y) * Mathf.Rad2Deg).ToString("F2") + " degrees nose up" +
                   "; wheels r " + F(wheels, "radius") + " m, springs " + F(susp, "stiffness") + " N/m " + F(susp, "damping") +
                   " N-s/m over " + (droop + jounce) + " m; grip " + mu + "; " + tires.Count + " tire colliders; servo lock " + F(servo, "lock") + " rad, latency " +
                   F(servo, "latency") + " s; motor stall " + F(motor, "stall_torque") + " N-m x " + F(motor, "gear") +
