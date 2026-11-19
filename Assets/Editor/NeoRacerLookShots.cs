@@ -3,13 +3,14 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
 // Renders close stills of the NeoRacer where it stands in a scene (the AuE-X930 scene, or the
 // one -neoracerScene names), for comparing one model with another: every camera is placed from
 // the car itself (its middle, its wheels, its LED matrix), so two models give the same views.
 // Batchmode, with graphics (not -nographics):
-//   -executeMethod NeoRacerLookShots.Run -neoracerShotDir <folder> [-neoracerScene <scene>]
+//   -executeMethod NeoRacerLookShots.Run -neoracerShotDir <folder> [-neoracerScene <scene>] [-neoracerUltra]
 public static class NeoRacerLookShots
 {
     const string DefaultScene = "Assets/Scenes/NeoRacer - AuE-X930.unity";
@@ -23,6 +24,14 @@ public static class NeoRacerLookShots
         Directory.CreateDirectory(dir);
         int named = Array.IndexOf(args, "-neoracerScene");
         EditorSceneManager.OpenScene(named >= 0 ? args[named + 1] : DefaultScene, OpenSceneMode.Single);
+        if (Array.IndexOf(args, "-neoracerUltra") >= 0)
+        {
+            // the simulator's Ultra Quality: its quality button pressed twice from Low, where a scene starts
+            RenderingQuality quality = UnityEngine.Object.FindObjectOfType<RenderingQuality>(true);
+            quality.ToggleRenderingQuality();
+            quality.ToggleRenderingQuality();
+            Debug.Log("SHOT quality " + quality.Label.text);
+        }
         VehicleController car = UnityEngine.Object.FindObjectOfType<VehicleController>(true);
         Transform body = car.VehicleRigidBody.transform;
         Vector3 fwd = body.forward, right = body.right, up = body.up;
@@ -103,7 +112,13 @@ public static class NeoRacerLookShots
         cam.transform.SetPositionAndRotation(at, look);
         var rt = new RenderTexture(Width, Height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
         cam.targetTexture = rt;
-        for (int i = 0; i < Frames; i++) cam.Render();
+        for (int i = 0; i < Frames; i++)
+        {
+            cam.Render();
+            // HDRP reads the sky's ambient light back from the GPU asynchronously, and outside the
+            // player loop nothing completes that; without it the car had only sunlight, its shaded side black
+            AsyncGPUReadback.WaitAllRequests();
+        }
         RenderTexture.active = rt;
         var tex = new Texture2D(Width, Height, TextureFormat.RGB24, false);
         tex.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
