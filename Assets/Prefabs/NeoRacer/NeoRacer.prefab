@@ -9430,6 +9430,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  RespawnLift: 0.0457
   CurrentCheckpoint: 0
   PreviousCheckpoint: 0
   CollisionCount: 0
