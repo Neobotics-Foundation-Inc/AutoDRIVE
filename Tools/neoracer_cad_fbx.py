@@ -21,6 +21,7 @@ the rear axle.
   Wheel FL, Wheel FR, Wheel RL, Wheel RR  each corner's tyre, rim, nut, stud and
                                           drive hex, origin at the tyre's centre
   led                                     the earlier model's LED matrix
+  sidepods                                the sidepods with their marks and NEORACER words
   every other part                        one per top-level group of the STEP
 The JSON gives the wheels' centres, radii and widths, the camera's and the
 LiDAR's places (the bounding-box centres of the camera's lens and of the
@@ -56,10 +57,14 @@ PALETTE = index['palette']
 
 GROUPS = {'chassis': 'chassis', 'electronics': 'electronics', 'printed': 'printed', 'fasteners': 'fasteners',
           'wiring': 'wiring', 'look layer (vendor models)': 'vendor', 'look layer (decals)': 'decals'}
-# Triangles each part keeps: about 630,000 in all with the LED matrix, against 244,844 for the
+# Triangles each part keeps: about 710,000 in all with the LED matrix, against 244,844 for the
 # Playground's race build. Each wheel keeps its tread; the screws, smallest on screen, the fewest.
 BUDGET = {'Wheel': 40000, 'chassis': 200000, 'vendor': 100000, 'wiring': 50000, 'printed': 50000,
-          'fasteners': 25000, 'electronics': 30000, 'decals': None}
+          'fasteners': 25000, 'electronics': 30000, 'decals': None, 'sidepods': 80000}
+# The sidepods with their marks and NEORACER words, a part of their own. Mark and word are inlays,
+# flush with the sidepod's face in letter-shaped holes; cut down with the other printed parts (to
+# about a ninth of their triangles) the word did not show and the mark only in pieces.
+SIDEPODS = r'^sidepod \d+( mark| word)?$'
 DROPPED = {'led_matrix 1'}  # the LED matrix comes from LED_FBX
 # On each wheel's axis, outboard of the knuckle (all of it over 90 mm from the middle; the
 # differentials have drive hex pins too): they spin and steer with the wheel
@@ -151,6 +156,8 @@ for s in index['solids']:
     on_the_wheel = re.match(ON_THE_WHEEL, s['label']) and np.abs(VERTS[slice(*s['verts']), 0]).min() > KNUCKLE_OUTBOARD
     if s['category'] == 'wheel' or on_the_wheel:
         part = 'Wheel ' + corner_of(s)
+    elif re.match(SIDEPODS, s['label']):
+        part = 'sidepods'
     else:
         part = GROUPS[s['category']]
     parts.setdefault(part, []).append(s)
@@ -245,7 +252,7 @@ def build(name, solids, budget, pivot=None):
 
 for name in ('Wheel FL', 'Wheel FR', 'Wheel RL', 'Wheel RR'):
     build(name, parts[name], BUDGET['Wheel'], pivot=wheels[name]['centre'] - origin)
-for name in GROUPS.values():
+for name in list(GROUPS.values()) + ['sidepods']:
     build(name, parts[name], BUDGET[name])
 
 # The LED matrix: the earlier model's, where the CAD has its own (the same part, 32 x 34 x 31.7 mm)
