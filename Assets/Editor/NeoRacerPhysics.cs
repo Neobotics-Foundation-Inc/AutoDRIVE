@@ -120,6 +120,16 @@ public static class NeoRacerPhysics
             };
         }
 
+        // LapTimer respawns the car at its last checkpoint, which a track puts just over its floor
+        // (AuE-X930: 10 mm). The car's root there put its lowest wheel 35 mm into the floor, past the
+        // springs' travel, and threw the car into the air: it respawns standing on that wheel, 1 mm
+        // up, as NeoRacerTestbed spawns it
+        float lift = 0f;
+        foreach (WheelCollider w in all)
+            lift = Mathf.Max(lift, w.radius - t.InverseTransformPoint(w.transform.position).y + 0.001f);
+        rb.GetComponent<LapTimer>().RespawnLift = lift;
+        Debug.Log("PHYSICS respawn " + (1000f * lift).ToString("F1") + " mm over a checkpoint");
+
         // The tires' solid colliders, upstream's cylinders named Collider: upstream hung them on
         // its drawn wheels, so they turned, steered and rode the springs with them. Since the
         // model swap (NeoRacerModelSwap) the drawn wheels are the new model's, and the cylinders
