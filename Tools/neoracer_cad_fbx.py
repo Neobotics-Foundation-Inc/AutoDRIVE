@@ -379,6 +379,11 @@ for ob in bpy.data.objects:
         ob.matrix_world = turn @ ob.matrix_world
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+# Blender writes every texture's absolute path, in the FBX's folder on this machine, beside its
+# relative one, whatever path_mode is: the FBX names only the file
+from io_scene_fbx import export_fbx_bin
+vid_paths = export_fbx_bin._gen_vid_path
+export_fbx_bin._gen_vid_path = lambda img, scene_data: (vid_paths(img, scene_data)[1],) * 2
 bpy.ops.export_scene.fbx(
     filepath=out_fbx, use_selection=True, object_types={'MESH'},
     apply_unit_scale=True, apply_scale_options='FBX_SCALE_UNITS', global_scale=1.0,
@@ -388,7 +393,7 @@ bpy.ops.export_scene.fbx(
 
 objects = sorted(o.name for o in bpy.data.objects if o.type == 'MESH')
 spec = {
-    'source': index['source'] + ', meshed at %s mm' % index['tolerance_mm'],
+    'source': os.path.basename(index['source']) + ', meshed at %s mm' % index['tolerance_mm'],
     'triangles': sum(len(o.data.polygons) for o in bpy.data.objects if o.type == 'MESH'),
     'parts': objects,
     'collider': collider,

@@ -122,8 +122,7 @@ public static class NeoRacerPhysics
 
         // LapTimer respawns the car at its last checkpoint, which a track puts just over its floor
         // (AuE-X930: 10 mm). The car's root there put its lowest wheel 35 mm into the floor, past the
-        // springs' travel, and threw the car into the air: it respawns standing on that wheel, 1 mm
-        // up, as NeoRacerTestbed spawns it
+        // springs' travel, and threw the car into the air: it respawns standing on that wheel, 1 mm up
         float lift = 0f;
         foreach (WheelCollider w in all)
             lift = Mathf.Max(lift, w.radius - t.InverseTransformPoint(w.transform.position).y + 0.001f);
